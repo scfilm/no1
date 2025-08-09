@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新版配色与字体示例页</title>
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    /* ========== 基础变量：新配色 + 字体栈 ========== */
+    :root{
+      /* 字体：标题用衬线，正文字体用现代无衬线（含常见中文系统字体） */
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                   "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI",
+                   "Noto Sans SC", "Noto Sans CJK SC", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-serif:"Iowan Old Style", Georgia, "Times New Roman",
+                   "Noto Serif SC", "Songti SC", STSong, "Source Han Serif SC", serif;
+
+      /* 亮色主题 */
+      --bg:        #f7f8fc;
+      --surface:   #ffffff;
+      --text:      #0f172a; /* 墨蓝黑 */
+      --muted:     #475569; /* 石板灰蓝 */
+      --primary:   #3b82f6; /* 静谧蓝 */
+      --primary-2: #2563eb; /* hover更深 */
+      --accent:    #f97316; /* 赤陶橙（点缀） */
+      --border:    #e5e7eb;
+      --shadow:    0 6px 20px rgba(2, 6, 23, .06);
+      --radius:    14px;
+      --radius-sm: 10px;
+
+      --max-w: 1120px;
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        /* 深色主题自动切换 */
+        --bg:        #0b1020;
+        --surface:   #0f1629;
+        --text:      #e8edf8;
+        --muted:     #9aa4b2;
+        --primary:   #60a5fa;
+        --primary-2: #93c5fd;
+        --accent:    #fb923c;
+        --border:    #1d2743;
+        --shadow:    0 8px 28px rgba(8, 15, 40, .6);
+      }
+    }
+
+    /* ========== 全局重置与排版 ========== */
+    *, *::before, *::after{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.65;
+      letter-spacing: .2px;
+    }
+
+    h1, h2, h3{
+      margin: 0 0 .6em;
+      font-family: var(--font-serif);
+      line-height: 1.25;
+      letter-spacing: .3px;
+    }
+    h1{ font-size: clamp(28px, 5vw, 48px); }
+    h2{ font-size: clamp(22px, 3.2vw, 32px); }
+    h3{ font-size: clamp(18px, 2.4vw, 24px); }
+
+    p{ margin: 0 0 1em; color: var(--muted); font-size: clamp(15px, 1.6vw, 17px); }
+    a{
+      color: var(--primary);
+      text-decoration: none;
+      transition: color .2s ease, opacity .2s ease;
+    }
+    a:hover{ color: var(--primary-2); }
+
+    .container{
+      width: min(100% - 40px, var(--max-w));
+      margin-inline: auto;
+    }
+
+    /* ========== 顶部导航 ========== */
+    .nav{
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: saturate(140%) blur(8px);
+      background: color-mix(in oklab, var(--bg) 74%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav__inner{
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+    }
+    .brand{
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .brand__logo{
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(120deg, var(--primary), var(--accent));
+      box-shadow: var(--shadow);
+    }
+    .nav__menu{ display: flex; gap: 18px; }
+    .nav__menu a{
+      padding: 8px 10px; border-radius: 10px;
+      color: var(--muted);
+    }
+    .nav__menu a:hover{
+      background: color-mix(in oklab, var(--primary) 14%, transparent);
+      color: var(--text);
+    }
+
+    /* ========== Hero ========== */
+    .hero{
+      padding: 64px 0 34px;
+    }
+    .hero__wrap{
+      display: grid; gap: 26px;
+      grid-template-columns: 1.2fr .9fr;
+    }
+    .hero__card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 2.4vw, 26px);
+      box-shadow: var(--shadow);
+    }
+    .hero__eyebrow{
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--primary);
+      border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent);
+      background: color-mix(in oklab, var(--primary) 8%, transparent);
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .hero__title{
+      background:
+        linear-gradient(120deg, var(--text), var(--text)) left bottom/100% 1px no-repeat,
+        linear-gradient(120deg, var(--primary), var(--accent));
+      -webkit-background-clip: text, padding-box;
+      background-clip: text, padding-box;
+      color: transparent;
+      margin-bottom: .3em;
+    }
+    .hero__desc{ max-width: 62ch; }
+
+    .cta{
+      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;
+    }
+    .btn{
+      appearance: none; border: 0; outline: 0; cursor: pointer;
+      padding: 12px 18px; border-radius: 12px;
+      font-weight: 600; letter-spacing: .2px;
+      transition: transform .04s ease, opacity .2s ease, background .2s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn--primary{
+      color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 10px 20px rgba(37, 99, 235, .18);
+    }
+    .btn--primary:hover{ opacity: .92; }
+    .btn--ghost{
+      color: var(--text);
+      background: color-mix(in oklab, var(--primary) 11%, transparent);
+      border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent);
+    }
+
+    .hero__aside{
+      display: grid; gap: 12px;
+    }
+    .stat{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      display: grid; gap: 6px;
+      box-shadow: var(--shadow);
+    }
+    .stat b{
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 3vw, 28px);
+      color: var(--primary);
+    }
+
+    /* ========== 功能卡片区 ========== */
+    .features{ padding: 26px 0 8px; }
+    .cards{
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: grid; gap: 10px;
+    }
+    .card__icon{
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      opacity: .9;
+    }
+    .card p{ margin: 0; }
+
+    /* ========== 主内容区 ========== */
+    .content{ padding: 28px 0 56px; }
+    .prose{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 2.4vw, 26px);
+      box-shadow: var(--shadow);
+    }
+    .prose p{
+      text-indent: 2em;
+    }
+    .prose h3{
+      margin-top: 1.2em;
+    }
+    .divider{
+      height: 1px; background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* ========== 页脚 ========== */
+    .footer{
+      border-top: 1px solid var(--border);
+      padding: 20px 0 40px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 960px){
+      .hero__wrap{ grid-template-columns: 1fr; }
+      .cards{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="nav">
+    <div class="container nav__inner">
+      <div class="brand">
+        <span class="brand__logo" aria-hidden="true"></span>
+        新版样式
+      </div>
+      <nav class="nav__menu" aria-label="主导航">
+        <a href="#features">功能</a>
+        <a href="#content">内容</a>
+        <a href="#contact">联系</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero__wrap">
+      <div class="hero__card">
+        <span class="hero__eyebrow">🎨 新配色 · 新字体</span>
+        <h1 class="hero__title">更精致的中文排版与清爽的蓝橙配色</h1>
+        <p class="hero__desc">
+          标题采用优雅衬线字体，正文使用现代无衬线字体，提升中文阅读舒适度。
+          颜色以静谧蓝为主、赤陶橙为点缀，明暗主题自动适配，视觉更高级。
+        </p>
+        <div class="cta">
+          <a class="btn btn--primary" href="#content">查看示例内容</a>
+          <a class="btn btn--ghost" href="#features">了解样式细节</a>
+        </div>
+      </div>
+
+      <aside class="hero__aside">
+        <div class="stat"><b>AA 对比度</b><span>关键文本与按钮符合无障碍可读性标准。</span></div>
+        <div class="stat"><b>系统字体</b><span>零网络请求，常见中文系统字体优先。</span></div>
+        <div class="stat"><b>暗黑适配</b><span>跟随系统偏好自动切换深色样式。</span></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 功能卡片 -->
+  <section id="features" class="features">
+    <div class="container cards">
+      <article class="card">
+        <div class="card__icon" aria-hidden="true"></div>
+        <h3>标题衬线 · 正文无衬线</h3>
+        <p>层级清晰、气质更稳重。中文与西文混排观感更佳。</p>
+      </article>
+      <article class="card">
+        <div class="card__icon" aria-hidden="true"></div>
+        <h3>静谧蓝 + 赤陶橙</h3>
+        <p>主色沉静专业，点缀色温暖有记忆点，强调与可读性兼顾。</p>
+      </article>
+      <article class="card">
+        <div class="card__icon" aria-hidden="true"></div>
+        <h3>卡片化信息层次</h3>
+        <p>阴影与边框更克制，留白合理，移动端栅格自然折行。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- 主内容示例 -->
+  <section id="content" class="content">
+    <div class="container prose">
+      <h2>示例章节标题</h2>
+      <p>
+        这里是示例段落，用于展示新的字体与配色在长文阅读中的效果。正文采用现代无衬线字体，
+        行高与字距经过微调，以获得更舒适的中文阅读体验。页面组件以卡片化呈现，配合克制的阴影与边框，
+        在不同屏幕尺寸下都能保持清晰的层次关系。
+      </p>
+      <p>
+        链接 <a href="#">样式</a> 使用主色并在悬停时略微加深；按钮采用渐变主色与柔和的圆角，
+        对比度符合 AA 级可读性标准。系统深色模式下，背景、文本与边框色会自动切换，确保夜间也能保持高品质阅读。
+      </p>
+      <div class="divider" role="presentation"></div>
+      <h3>小节标题（H3）</h3>
+      <p>
+        若需替换主题主色或点缀色，只需在 <code>:root</code> 中改动
+        <code>--primary</code> 与 <code>--accent</code> 变量即可；
+        字体栈位于 <code>--font-sans</code> 与 <code>--font-serif</code>。也可以把本段落替换为你的真实内容。
+      </p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer id="contact" class="footer">
+    <div class="container">
+      <div>© 2025 新版样式示例 · 已适配浅色/深色 · 字体与配色可在 <code>:root</code> 中统一修改</div>
+    </div>
+  </footer>
+</body>
+</html>
