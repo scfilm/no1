@@ -1,339 +1,2514 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>新版配色与字体示例页</title>
-  <meta name="color-scheme" content="light dark" />
-  <style>
-    /* ========== 基础变量：新配色 + 字体栈 ========== */
-    :root{
-      /* 字体：标题用衬线，正文字体用现代无衬线（含常见中文系统字体） */
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-                   "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI",
-                   "Noto Sans SC", "Noto Sans CJK SC", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-serif:"Iowan Old Style", Georgia, "Times New Roman",
-                   "Noto Serif SC", "Songti SC", STSong, "Source Han Serif SC", serif;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑洞AI编剧系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      /* 亮色主题 */
-      --bg:        #f7f8fc;
-      --surface:   #ffffff;
-      --text:      #0f172a; /* 墨蓝黑 */
-      --muted:     #475569; /* 石板灰蓝 */
-      --primary:   #3b82f6; /* 静谧蓝 */
-      --primary-2: #2563eb; /* hover更深 */
-      --accent:    #f97316; /* 赤陶橙（点缀） */
-      --border:    #e5e7eb;
-      --shadow:    0 6px 20px rgba(2, 6, 23, .06);
-      --radius:    14px;
-      --radius-sm: 10px;
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-      --max-w: 1120px;
-    }
+        /* 动态星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
 
-    @media (prefers-color-scheme: dark){
-      :root{
-        /* 深色主题自动切换 */
-        --bg:        #0b1020;
-        --surface:   #0f1629;
-        --text:      #e8edf8;
-        --muted:     #9aa4b2;
-        --primary:   #60a5fa;
-        --primary-2: #93c5fd;
-        --accent:    #fb923c;
-        --border:    #1d2743;
-        --shadow:    0 8px 28px rgba(8, 15, 40, .6);
-      }
-    }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
 
-    /* ========== 全局重置与排版 ========== */
-    *, *::before, *::after{ box-sizing: border-box; }
-    html, body{ height: 100%; }
-    body{
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      line-height: 1.65;
-      letter-spacing: .2px;
-    }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
 
-    h1, h2, h3{
-      margin: 0 0 .6em;
-      font-family: var(--font-serif);
-      line-height: 1.25;
-      letter-spacing: .3px;
-    }
-    h1{ font-size: clamp(28px, 5vw, 48px); }
-    h2{ font-size: clamp(22px, 3.2vw, 32px); }
-    h3{ font-size: clamp(18px, 2.4vw, 24px); }
+        /* 黑洞效果 */
+        .blackhole-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 800px;
+            height: 800px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center, 
+                transparent 0%, 
+                rgba(138, 43, 226, 0.1) 30%, 
+                rgba(75, 0, 130, 0.2) 50%, 
+                rgba(0, 0, 0, 0.9) 100%);
+            animation: rotate 60s linear infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
 
-    p{ margin: 0 0 1em; color: var(--muted); font-size: clamp(15px, 1.6vw, 17px); }
-    a{
-      color: var(--primary);
-      text-decoration: none;
-      transition: color .2s ease, opacity .2s ease;
-    }
-    a:hover{ color: var(--primary-2); }
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
 
-    .container{
-      width: min(100% - 40px, var(--max-w));
-      margin-inline: auto;
-    }
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
-    /* ========== 顶部导航 ========== */
-    .nav{
-      position: sticky; top: 0; z-index: 40;
-      backdrop-filter: saturate(140%) blur(8px);
-      background: color-mix(in oklab, var(--bg) 74%, transparent);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav__inner{
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 0;
-    }
-    .brand{
-      display: inline-flex; align-items: center; gap: 10px;
-      font-weight: 700;
-      font-size: 18px;
-    }
-    .brand__logo{
-      width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(120deg, var(--primary), var(--accent));
-      box-shadow: var(--shadow);
-    }
-    .nav__menu{ display: flex; gap: 18px; }
-    .nav__menu a{
-      padding: 8px 10px; border-radius: 10px;
-      color: var(--muted);
-    }
-    .nav__menu a:hover{
-      background: color-mix(in oklab, var(--primary) 14%, transparent);
-      color: var(--text);
-    }
+        /* 标题 */
+        .title {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
 
-    /* ========== Hero ========== */
-    .hero{
-      padding: 64px 0 34px;
-    }
-    .hero__wrap{
-      display: grid; gap: 26px;
-      grid-template-columns: 1.2fr .9fr;
-    }
-    .hero__card{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(18px, 2.4vw, 26px);
-      box-shadow: var(--shadow);
-    }
-    .hero__eyebrow{
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 6px 10px;
-      font-size: 13px;
-      color: var(--primary);
-      border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent);
-      background: color-mix(in oklab, var(--primary) 8%, transparent);
-      border-radius: 999px;
-      margin-bottom: 12px;
-    }
-    .hero__title{
-      background:
-        linear-gradient(120deg, var(--text), var(--text)) left bottom/100% 1px no-repeat,
-        linear-gradient(120deg, var(--primary), var(--accent));
-      -webkit-background-clip: text, padding-box;
-      background-clip: text, padding-box;
-      color: transparent;
-      margin-bottom: .3em;
-    }
-    .hero__desc{ max-width: 62ch; }
+        .title h1 {
+            font-size: 48px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            letter-spacing: 3px;
+        }
 
-    .cta{
-      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;
-    }
-    .btn{
-      appearance: none; border: 0; outline: 0; cursor: pointer;
-      padding: 12px 18px; border-radius: 12px;
-      font-weight: 600; letter-spacing: .2px;
-      transition: transform .04s ease, opacity .2s ease, background .2s ease;
-    }
-    .btn:active{ transform: translateY(1px); }
+        @keyframes glow {
+            from { text-shadow: 0 0 30px rgba(0, 255, 255, 0.5); }
+            to { text-shadow: 0 0 50px rgba(255, 0, 255, 0.8); }
+        }
 
-    .btn--primary{
-      color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      box-shadow: 0 10px 20px rgba(37, 99, 235, .18);
-    }
-    .btn--primary:hover{ opacity: .92; }
-    .btn--ghost{
-      color: var(--text);
-      background: color-mix(in oklab, var(--primary) 11%, transparent);
-      border: 1px solid color-mix(in oklab, var(--primary) 40%, transparent);
-    }
+        .subtitle {
+            color: #888;
+            margin-top: 10px;
+            font-size: 14px;
+        }
 
-    .hero__aside{
-      display: grid; gap: 12px;
-    }
-    .stat{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 16px 18px;
-      display: grid; gap: 6px;
-      box-shadow: var(--shadow);
-    }
-    .stat b{
-      font-family: var(--font-serif);
-      font-size: clamp(22px, 3vw, 28px);
-      color: var(--primary);
-    }
+        /* 模块网格 */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
 
-    /* ========== 功能卡片区 ========== */
-    .features{ padding: 26px 0 8px; }
-    .cards{
-      display: grid; gap: 16px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .card{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 18px;
-      box-shadow: var(--shadow);
-      display: grid; gap: 10px;
-    }
-    .card__icon{
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      opacity: .9;
-    }
-    .card p{ margin: 0; }
+        /* 模块卡片 */
+        .module-card {
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(20, 20, 20, 0.9));
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-    /* ========== 主内容区 ========== */
-    .content{ padding: 28px 0 56px; }
-    .prose{
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(18px, 2.4vw, 26px);
-      box-shadow: var(--shadow);
-    }
-    .prose p{
-      text-indent: 2em;
-    }
-    .prose h3{
-      margin-top: 1.2em;
-    }
-    .divider{
-      height: 1px; background: var(--border);
-      margin: 18px 0;
-    }
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
 
-    /* ========== 页脚 ========== */
-    .footer{
-      border-top: 1px solid var(--border);
-      padding: 20px 0 40px;
-      color: var(--muted);
-      font-size: 14px;
-    }
+        .module-card:hover::before {
+            opacity: 1;
+            animation: borderRotate 3s linear infinite;
+        }
 
-    /* ========== 响应式 ========== */
-    @media (max-width: 960px){
-      .hero__wrap{ grid-template-columns: 1fr; }
-      .cards{ grid-template-columns: 1fr; }
-    }
-  </style>
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.5);
+            background: linear-gradient(135deg, rgba(40, 40, 40, 0.95), rgba(30, 30, 30, 0.95));
+        }
+
+        .module-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #00ffff;
+        }
+
+        .module-desc {
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        /* 工具页面模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: #ff00ff;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .tool-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #00ffff;
+            text-align: center;
+        }
+
+        .code-section {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .code-title {
+            color: #ff00ff;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            border: 1px solid #0f0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 分类标题 */
+        .category-title {
+            font-size: 24px;
+            color: #ff00ff;
+            margin: 30px 0 20px 0;
+            text-align: center;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .category-title::before,
+        .category-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ff00ff, transparent);
+        }
+
+        .category-title::before { left: 0; }
+        .category-title::after { right: 0; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .title h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- 顶部导航 -->
-  <header class="nav">
-    <div class="container nav__inner">
-      <div class="brand">
-        <span class="brand__logo" aria-hidden="true"></span>
-        新版样式
-      </div>
-      <nav class="nav__menu" aria-label="主导航">
-        <a href="#features">功能</a>
-        <a href="#content">内容</a>
-        <a href="#contact">联系</a>
-      </nav>
-    </div>
-  </header>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- 黑洞背景效果 -->
+    <div class="blackhole-bg"></div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container hero__wrap">
-      <div class="hero__card">
-        <span class="hero__eyebrow">🎨 新配色 · 新字体</span>
-        <h1 class="hero__title">更精致的中文排版与清爽的蓝橙配色</h1>
-        <p class="hero__desc">
-          标题采用优雅衬线字体，正文使用现代无衬线字体，提升中文阅读舒适度。
-          颜色以静谧蓝为主、赤陶橙为点缀，明暗主题自动适配，视觉更高级。
-        </p>
-        <div class="cta">
-          <a class="btn btn--primary" href="#content">查看示例内容</a>
-          <a class="btn btn--ghost" href="#features">了解样式细节</a>
-        </div>
-      </div>
-
-      <aside class="hero__aside">
-        <div class="stat"><b>AA 对比度</b><span>关键文本与按钮符合无障碍可读性标准。</span></div>
-        <div class="stat"><b>系统字体</b><span>零网络请求，常见中文系统字体优先。</span></div>
-        <div class="stat"><b>暗黑适配</b><span>跟随系统偏好自动切换深色样式。</span></div>
-      </aside>
-    </div>
-  </section>
-
-  <!-- 功能卡片 -->
-  <section id="features" class="features">
-    <div class="container cards">
-      <article class="card">
-        <div class="card__icon" aria-hidden="true"></div>
-        <h3>标题衬线 · 正文无衬线</h3>
-        <p>层级清晰、气质更稳重。中文与西文混排观感更佳。</p>
-      </article>
-      <article class="card">
-        <div class="card__icon" aria-hidden="true"></div>
-        <h3>静谧蓝 + 赤陶橙</h3>
-        <p>主色沉静专业，点缀色温暖有记忆点，强调与可读性兼顾。</p>
-      </article>
-      <article class="card">
-        <div class="card__icon" aria-hidden="true"></div>
-        <h3>卡片化信息层次</h3>
-        <p>阴影与边框更克制，留白合理，移动端栅格自然折行。</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- 主内容示例 -->
-  <section id="content" class="content">
-    <div class="container prose">
-      <h2>示例章节标题</h2>
-      <p>
-        这里是示例段落，用于展示新的字体与配色在长文阅读中的效果。正文采用现代无衬线字体，
-        行高与字距经过微调，以获得更舒适的中文阅读体验。页面组件以卡片化呈现，配合克制的阴影与边框，
-        在不同屏幕尺寸下都能保持清晰的层次关系。
-      </p>
-      <p>
-        链接 <a href="#">样式</a> 使用主色并在悬停时略微加深；按钮采用渐变主色与柔和的圆角，
-        对比度符合 AA 级可读性标准。系统深色模式下，背景、文本与边框色会自动切换，确保夜间也能保持高品质阅读。
-      </p>
-      <div class="divider" role="presentation"></div>
-      <h3>小节标题（H3）</h3>
-      <p>
-        若需替换主题主色或点缀色，只需在 <code>:root</code> 中改动
-        <code>--primary</code> 与 <code>--accent</code> 变量即可；
-        字体栈位于 <code>--font-sans</code> 与 <code>--font-serif</code>。也可以把本段落替换为你的真实内容。
-      </p>
-    </div>
-  </section>
-
-  <!-- 页脚 -->
-  <footer id="contact" class="footer">
     <div class="container">
-      <div>© 2025 新版样式示例 · 已适配浅色/深色 · 字体与配色可在 <code>:root</code> 中统一修改</div>
+        <div class="title">
+            <h1>🌌 黑洞AI编剧系统</h1>
+            <p class="subtitle">从灵感到爆款剧本的全流程AI创作工具集</p>
+        </div>
+
+        <!-- 创意构思阶段 -->
+        <div class="category-title">📝 创意构思阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('灵感捕捉器', 'inspiration')">
+                <div class="module-icon">💡</div>
+                <div class="module-title">灵感捕捉器</div>
+                <div class="module-desc">AI驱动的创意生成与灵感记录系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('主题挖掘机', 'theme')">
+                <div class="module-icon">⛏️</div>
+                <div class="module-title">主题挖掘机</div>
+                <div class="module-desc">深度分析社会热点与永恒主题</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('类型混搭器', 'genre')">
+                <div class="module-icon">🎭</div>
+                <div class="module-title">类型混搭器</div>
+                <div class="module-desc">创新性类型片元素组合生成</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('概念提炼器', 'concept')">
+                <div class="module-icon">💎</div>
+                <div class="module-title">概念提炼器</div>
+                <div class="module-desc">将粗糙想法提炼为核心概念</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('创意评估器', 'evaluate')">
+                <div class="module-icon">📊</div>
+                <div class="module-title">创意评估器</div>
+                <div class="module-desc">市场潜力与独特性评分系统</div>
+            </div>
+        </div>
+
+        <!-- 故事开发阶段 -->
+        <div class="category-title">📖 故事开发阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('故事架构师', 'structure')">
+                <div class="module-icon">🏗️</div>
+                <div class="module-title">故事架构师</div>
+                <div class="module-desc">三幕式/英雄之旅等经典结构生成</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('情节编织器', 'plot')">
+                <div class="module-icon">🕸️</div>
+                <div class="module-title">情节编织器</div>
+                <div class="module-desc">主线支线情节智能编排系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('转折点生成器', 'turning')">
+                <div class="module-icon">🔄</div>
+                <div class="module-title">转折点生成器</div>
+                <div class="module-desc">关键剧情转折与高潮设计</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('悬念制造机', 'suspense')">
+                <div class="module-icon">❓</div>
+                <div class="module-title">悬念制造机</div>
+                <div class="module-desc">钩子、伏笔与悬念布局系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('节奏控制器', 'pacing')">
+                <div class="module-icon">🎵</div>
+                <div class="module-title">节奏控制器</div>
+                <div class="module-desc">叙事节奏与张力曲线优化</div>
+            </div>
+        </div>
+
+        <!-- 角色塑造阶段 -->
+        <div class="category-title">👥 角色塑造阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('角色生成器', 'character')">
+                <div class="module-icon">🎨</div>
+                <div class="module-title">角色生成器</div>
+                <div class="module-desc">多维度立体角色创建系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('人物弧光设计', 'arc')">
+                <div class="module-icon">📈</div>
+                <div class="module-title">人物弧光设计</div>
+                <div class="module-desc">角色成长轨迹与转变规划</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('关系网络图', 'relationship')">
+                <div class="module-icon">🔗</div>
+                <div class="module-title">关系网络图</div>
+                <div class="module-desc">人物关系动态演变系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('性格测试仪', 'personality')">
+                <div class="module-icon">🧬</div>
+                <div class="module-title">性格测试仪</div>
+                <div class="module-desc">MBTI/九型人格角色定位</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('背景故事机', 'backstory')">
+                <div class="module-icon">📚</div>
+                <div class="module-title">背景故事机</div>
+                <div class="module-desc">角色前史与动机深度挖掘</div>
+            </div>
+        </div>
+
+        <!-- 对话写作阶段 -->
+        <div class="category-title">💬 对话写作阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('对话生成器', 'dialogue')">
+                <div class="module-icon">💭</div>
+                <div class="module-title">对话生成器</div>
+                <div class="module-desc">角色语言风格化对话创作</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('潜台词分析', 'subtext')">
+                <div class="module-icon">🎯</div>
+                <div class="module-title">潜台词分析</div>
+                <div class="module-desc">对话深层含义与张力设计</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('口语化处理', 'colloquial')">
+                <div class="module-icon">🗣️</div>
+                <div class="module-title">口语化处理</div>
+                <div class="module-desc">自然语言与地域特色优化</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('金句提炼器', 'quotes')">
+                <div class="module-icon">✨</div>
+                <div class="module-title">金句提炼器</div>
+                <div class="module-desc">经典台词与名言警句生成</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('语言节奏器', 'rhythm')">
+                <div class="module-icon">🎼</div>
+                <div class="module-title">语言节奏器</div>
+                <div class="module-desc">对话长短与停顿节奏设计</div>
+            </div>
+        </div>
+
+        <!-- 场景设计阶段 -->
+        <div class="category-title">🎬 场景设计阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('场景描述器', 'scene')">
+                <div class="module-icon">🖼️</div>
+                <div class="module-title">场景描述器</div>
+                <div class="module-desc">视觉化场景细节描写生成</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('氛围营造机', 'atmosphere')">
+                <div class="module-icon">🌈</div>
+                <div class="module-title">氛围营造机</div>
+                <div class="module-desc">情绪色彩与感官体验设计</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('动作编排器', 'action')">
+                <div class="module-icon">⚔️</div>
+                <div class="module-title">动作编排器</div>
+                <div class="module-desc">动作场面与打斗戏设计</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('转场设计师', 'transition')">
+                <div class="module-icon">🔀</div>
+                <div class="module-title">转场设计师</div>
+                <div class="module-desc">场景衔接与过渡技巧优化</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('镜头语言器', 'camera')">
+                <div class="module-icon">📹</div>
+                <div class="module-title">镜头语言器</div>
+                <div class="module-desc">视觉叙事与镜头运用建议</div>
+            </div>
+        </div>
+
+        <!-- 风格优化阶段 -->
+        <div class="category-title">🎨 风格优化阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('风格定位器', 'style')">
+                <div class="module-icon">🎪</div>
+                <div class="module-title">风格定位器</div>
+                <div class="module-desc">作品调性与风格统一化</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('基调调节器', 'tone')">
+                <div class="module-icon">🎛️</div>
+                <div class="module-title">基调调节器</div>
+                <div class="module-desc">喜剧/悲剧/讽刺等基调平衡</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('象征符号库', 'symbol')">
+                <div class="module-icon">♾️</div>
+                <div class="module-title">象征符号库</div>
+                <div class="module-desc">隐喻、象征与意象系统设计</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('文学性增强', 'literary')">
+                <div class="module-icon">📜</div>
+                <div class="module-title">文学性增强</div>
+                <div class="module-desc">诗意化与艺术性表达提升</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('商业化平衡', 'commercial')">
+                <div class="module-icon">💰</div>
+                <div class="module-title">商业化平衡</div>
+                <div class="module-desc">艺术性与市场性优化调整</div>
+            </div>
+        </div>
+
+        <!-- 技术分析阶段 -->
+        <div class="category-title">🔬 技术分析阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('结构分析器', 'analysis')">
+                <div class="module-icon">📐</div>
+                <div class="module-title">结构分析器</div>
+                <div class="module-desc">剧本结构完整性检测分析</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('逻辑检查器', 'logic')">
+                <div class="module-icon">🔍</div>
+                <div class="module-title">逻辑检查器</div>
+                <div class="module-desc">情节逻辑漏洞自动检测</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('冲突强化器', 'conflict')">
+                <div class="module-icon">⚡</div>
+                <div class="module-title">冲突强化器</div>
+                <div class="module-desc">戏剧冲突密度与强度优化</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('情感曲线图', 'emotion')">
+                <div class="module-icon">💖</div>
+                <div class="module-title">情感曲线图</div>
+                <div class="module-desc">观众情感起伏轨迹分析</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('节拍分析器', 'beat')">
+                <div class="module-icon">🥁</div>
+                <div class="module-title">节拍分析器</div>
+                <div class="module-desc">剧本节拍与时长计算系统</div>
+            </div>
+        </div>
+
+        <!-- 后期完善阶段 -->
+        <div class="category-title">✨ 后期完善阶段</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('润色优化器', 'polish')">
+                <div class="module-icon">💫</div>
+                <div class="module-title">润色优化器</div>
+                <div class="module-desc">文字精炼与表达优化系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('格式规范器', 'format')">
+                <div class="module-icon">📋</div>
+                <div class="module-title">格式规范器</div>
+                <div class="module-desc">国际标准剧本格式转换</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('版本管理器', 'version')">
+                <div class="module-icon">🔄</div>
+                <div class="module-title">版本管理器</div>
+                <div class="module-desc">剧本版本对比与追踪系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('反馈整合器', 'feedback')">
+                <div class="module-icon">📝</div>
+                <div class="module-title">反馈整合器</div>
+                <div class="module-desc">批注意见智能整合处理</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('最终审核器', 'final')">
+                <div class="module-icon">✅</div>
+                <div class="module-title">最终审核器</div>
+                <div class="module-desc">剧本质量综合评估报告</div>
+            </div>
+        </div>
+
+        <!-- 辅助工具阶段 -->
+        <div class="category-title">🛠️ 辅助工具集</div>
+        <div class="modules-grid">
+            <div class="module-card" onclick="openTool('维基百科接入', 'wiki')">
+                <div class="module-icon">🌐</div>
+                <div class="module-title">维基百科接入</div>
+                <div class="module-desc">实时资料查询与事实核查</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('经典案例库', 'cases')">
+                <div class="module-icon">📚</div>
+                <div class="module-title">经典案例库</div>
+                <div class="module-desc">爆款剧本模式分析学习</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('AI协作助手', 'assistant')">
+                <div class="module-icon">🤖</div>
+                <div class="module-title">AI协作助手</div>
+                <div class="module-desc">多模型协同创作系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('导出发布器', 'export')">
+                <div class="module-icon">📤</div>
+                <div class="module-title">导出发布器</div>
+                <div class="module-desc">多格式导出与分享系统</div>
+            </div>
+            
+            <div class="module-card" onclick="openTool('数据分析台', 'analytics')">
+                <div class="module-icon">📊</div>
+                <div class="module-title">数据分析台</div>
+                <div class="module-desc">创作数据与市场趋势分析</div>
+            </div>
+        </div>
     </div>
-  </footer>
-</body>
-</html>
+
+    <!-- 工具详情模态框 -->
+    <div id="toolModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 class="tool-title" id="toolTitle"></h2>
+            
+            <div class="code-section">
+                <div class="code-title">🐍 Python 实现代码</div>
+                <pre class="code-block" id="pythonCode"></pre>
+                <button class="copy-btn" onclick="copyCode('pythonCode')">复制代码</button>
+            </div>
+            
+            <div class="code-section">
+                <div class="code-title">🤖 AI大模型提示词</div>
+                <pre class="code-block" id="promptCode"></pre>
+                <button class="copy-btn" onclick="copyCode('promptCode')">复制提示词</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 生成星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.opacity = Math.random();
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // 工具内容数据（完整50个模块）
+        const toolsData = {
+            'inspiration': {
+                python: `import openai
+import random
+from datetime import datetime
+import wikipedia
+
+class InspirationCatcher:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def generate_inspiration(self, keywords=[], style="creative"):
+        """生成创意灵感"""
+        prompt = f"""
+        基于以下关键词生成5个独特的故事灵感：
+        关键词：{', '.join(keywords) if keywords else '随机'}
+        风格：{style}
+        
+        要求：
+        1. 每个灵感包含：核心概念、独特卖点、目标观众
+        2. 具有市场潜力和话题性
+        3. 避免陈词滥调
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.9,
+            max_tokens=1000
+        )
+        return response.choices[0].message.content
+        
+    def search_trends(self, topic):
+        """搜索相关趋势和热点"""
+        try:
+            results = wikipedia.search(topic, results=5)
+            summaries = []
+            for result in results:
+                try:
+                    page = wikipedia.page(result)
+                    summaries.append({
+                        'title': page.title,
+                        'summary': page.summary[:200],
+                        'url': page.url
+                    })
+                except:
+                    continue
+            return summaries
+        except:
+            return []
+
+# 使用示例
+catcher = InspirationCatcher("your-api-key")
+inspiration = catcher.generate_inspiration(["科幻", "爱情", "时间旅行"])
+print(inspiration)`,
+                prompt: `你是一个专业的剧本创意生成大师。请根据以下要求生成创意灵感：
+
+输入信息：
+- 关键词：[用户提供的关键词]
+- 类型偏好：[喜剧/悲剧/惊悚/科幻等]
+- 目标观众：[年龄段、兴趣特征]
+
+输出要求：
+1. 生成5个独特的故事创意
+2. 每个创意包含：
+   - 一句话核心概念（Logline）
+   - 独特卖点（USP）
+   - 类似成功作品参考
+   - 潜在冲突点
+   - 视觉亮点
+   - 市场定位
+
+3. 创意评分（1-10分）：
+   - 原创性
+   - 市场潜力
+   - 可执行性
+   - 话题性
+
+请确保创意具有：
+- 强烈的戏剧张力
+- 清晰的目标观众
+- 独特的切入角度
+- 情感共鸣点
+- 视觉想象空间`
+            },
+            'genre': {
+                python: `import openai
+import random
+
+class GenreMixer:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def mix_genres(self, primary_genre, secondary_genre):
+        """混合类型片元素"""
+        prompt = f"""
+        创新性地混合{primary_genre}和{secondary_genre}类型：
+        
+        1. 核心元素提取：
+           - {primary_genre}的必备元素
+           - {secondary_genre}的特色元素
+           
+        2. 创新融合点：
+           - 意外的组合方式
+           - 打破常规的设定
+           - 新鲜的视角
+           
+        3. 成功案例分析：
+           - 类似混合的成功作品
+           - 借鉴点
+           
+        4. 潜在风险与机遇
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+# 使用示例
+mixer = GenreMixer("your-api-key")
+result = mixer.mix_genres("科幻", "爱情")`,
+                prompt: `你是类型片创新专家。请进行类型混搭设计：
+
+主类型：[用户选择的主类型]
+次类型：[用户选择的次类型]
+
+输出创新混搭方案，包括：
+
+1. 类型DNA分析
+   - 主类型核心元素（5个）
+   - 次类型特色元素（3个）
+   - 冲突点与融合点
+
+2. 创新混搭策略
+   - 颠覆性设定
+   - 新视角切入
+   - 情感内核重构
+
+3. 观众期待管理
+   - 满足的类型期待
+   - 打破的陈规
+   - 新鲜感来源
+
+4. 参考作品分析
+   - 成功案例
+   - 失败教训
+   - 创新启发`
+            },
+            'concept': {
+                python: `class ConceptRefiner:
+    def refine_concept(self, raw_idea):
+        """提炼核心概念"""
+        prompt = f"""
+        将粗糙想法提炼为核心概念：
+        原始想法：{raw_idea}
+        
+        输出：
+        1. 一句话概念（Logline）
+        2. 核心冲突
+        3. 主题陈述
+        4. 独特卖点
+        5. 目标观众定位
+        """
+        # AI处理逻辑
+        return refined_concept`,
+                prompt: `将模糊想法提炼为清晰概念：
+
+原始想法：[用户输入]
+
+提炼步骤：
+1. 找出核心冲突
+2. 明确主人公目标
+3. 识别最大障碍
+4. 提炼主题
+5. 形成一句话概念
+
+输出格式：
+- Logline（25字内）
+- 核心冲突
+- 情感诉求
+- 市场定位`
+            },
+            'evaluate': {
+                python: `class CreativityEvaluator:
+    def evaluate_idea(self, idea):
+        """评估创意潜力"""
+        criteria = {
+            '原创性': 0,
+            '市场潜力': 0,
+            '情感共鸣': 0,
+            '可执行性': 0,
+            '话题性': 0
+        }
+        # 评分逻辑
+        return criteria`,
+                prompt: `评估创意的市场潜力和艺术价值：
+
+创意内容：[用户输入]
+
+评估维度（1-10分）：
+1. 原创性：概念新颖度
+2. 市场潜力：商业价值
+3. 情感共鸣：观众连接
+4. 可执行性：制作难度
+5. 话题性：社交传播力
+
+提供改进建议和风险提示。`
+            },
+            'structure': {
+                python: `class StoryArchitect:
+    def build_structure(self, story_type):
+        """构建故事结构"""
+        structures = {
+            '三幕式': self.three_act_structure,
+            '英雄之旅': self.hero_journey,
+            '五幕式': self.five_act_structure,
+            'Save the Cat': self.save_the_cat
+        }
+        return structures[story_type]()`,
+                prompt: `设计故事的整体架构：
+
+故事类型：[用户选择]
+核心概念：[用户输入]
+
+可选结构：
+1. 经典三幕式
+2. 英雄之旅（17步）
+3. Save the Cat节拍表
+4. 五幕悲剧结构
+5. 非线性叙事
+
+为每个结构点提供具体内容建议。`
+            },
+            'turning': {
+                python: `class TurningPointGenerator:
+    def generate_turning_points(self, plot):
+        """生成关键转折点"""
+        turning_points = {
+            '煽动事件': '',
+            '第一转折': '',
+            '中点转折': '',
+            '第二转折': '',
+            '高潮时刻': ''
+        }
+        # 生成逻辑
+        return turning_points`,
+                prompt: `设计剧情关键转折点：
+
+当前剧情：[用户输入]
+
+转折点设计：
+1. 煽动事件：打破平衡
+2. 第一转折：进入新世界
+3. 中点转折：真相/虚假胜利
+4. 第二转折：最后机会
+5. 高潮：最大冲突
+
+每个转折包括：
+- 具体事件
+- 人物选择
+- 后果影响
+- 情感冲击`
+            },
+            'suspense': {
+                python: `class SuspenseMachine:
+    def create_suspense(self, story_context):
+        """制造悬念和钩子"""
+        techniques = {
+            '信息差': self.information_gap,
+            '时间炸弹': self.ticking_clock,
+            '错误认知': self.false_belief,
+            '预示': self.foreshadowing
+        }
+        return techniques`,
+                prompt: `设计悬念和钩子系统：
+
+故事背景：[用户输入]
+
+悬念技巧：
+1. 开场钩子：前10秒抓住注意力
+2. 章节钩子：每章结尾悬念
+3. 伏笔设计：早期埋设，后期回收
+4. 红鲱鱼：误导性线索
+5. 倒计时：时间压力
+
+输出具体的悬念设置方案。`
+            },
+            'pacing': {
+                python: `class PacingController:
+    def optimize_pacing(self, scenes):
+        """优化叙事节奏"""
+        pacing_analysis = {
+            '快节奏场景': [],
+            '慢节奏场景': [],
+            '转换点': [],
+            '呼吸点': []
+        }
+        return pacing_analysis`,
+                prompt: `优化故事节奏和张力曲线：
+
+场景列表：[用户输入]
+
+节奏设计：
+1. 开场节奏：快速入戏
+2. 发展节奏：张弛有度
+3. 高潮节奏：急速推进
+4. 收尾节奏：适度留白
+
+提供具体的场景时长建议和剪辑节奏。`
+            },
+            'arc': {
+                python: `class CharacterArcDesigner:
+    def design_arc(self, character):
+        """设计人物成长弧线"""
+        arc_stages = {
+            '起点状态': '',
+            '催化事件': '',
+            '抗拒改变': '',
+            '逐步转变': '',
+            '关键选择': '',
+            '最终蜕变': ''
+        }
+        return arc_stages`,
+                prompt: `设计角色成长弧线：
+
+角色设定：[用户输入]
+
+成长轨迹：
+1. 起点：缺陷/需求
+2. 催化：改变的契机
+3. 抗拒：对改变的抵抗
+4. 学习：逐步认识
+5. 考验：重大选择
+6. 蜕变：完成转变
+
+每个阶段的具体表现和标志性场景。`
+            },
+            'relationship': {
+                python: `class RelationshipMapper:
+    def map_relationships(self, characters):
+        """绘制人物关系网络"""
+        import networkx as nx
+        import matplotlib.pyplot as plt
+        
+        G = nx.Graph()
+        # 添加节点和边
+        for char in characters:
+            G.add_node(char['name'])
+        # 添加关系连线
+        # 可视化关系图
+        return G`,
+                prompt: `设计角色关系网络：
+
+角色列表：[用户输入]
+
+关系类型：
+1. 血缘关系
+2. 爱情关系
+3. 友谊/盟友
+4. 对手/敌人
+5. 导师/学生
+
+动态变化：
+- 关系起点
+- 转折点
+- 最终状态
+
+输出关系图和变化轨迹。`
+            },
+            'personality': {
+                python: `class PersonalityAnalyzer:
+    def analyze_personality(self, character):
+        """性格类型分析"""
+        mbti_type = self.get_mbti(character)
+        enneagram = self.get_enneagram(character)
+        big_five = self.get_big_five(character)
+        
+        return {
+            'MBTI': mbti_type,
+            '九型人格': enneagram,
+            '大五人格': big_five
+        }`,
+                prompt: `分析角色性格类型：
+
+角色描述：[用户输入]
+
+性格系统：
+1. MBTI类型（16型）
+2. 九型人格
+3. 大五人格
+4. 气质类型
+
+输出：
+- 类型特征
+- 行为模式
+- 决策倾向
+- 冲突来源
+- 成长方向`
+            },
+            'backstory': {
+                python: `class BackstoryGenerator:
+    def generate_backstory(self, character):
+        """生成角色背景故事"""
+        backstory_elements = {
+            '童年经历': '',
+            '关键事件': '',
+            '形成性创伤': '',
+            '重要关系': '',
+            '转折点': ''
+        }
+        return backstory_elements`,
+                prompt: `创建角色背景故事：
+
+角色现状：[用户输入]
+
+背景要素：
+1. 原生家庭
+2. 童年阴影
+3. 成长环境
+4. 关键事件
+5. 重要他人
+
+如何影响：
+- 性格形成
+- 行为模式
+- 核心信念
+- 恐惧来源`
+            },
+            'subtext': {
+                python: `class SubtextAnalyzer:
+    def analyze_subtext(self, dialogue):
+        """分析对话潜台词"""
+        analysis = {
+            '表面含义': '',
+            '真实意图': '',
+            '情感状态': '',
+            '权力动态': '',
+            '未说出的话': ''
+        }
+        return analysis`,
+                prompt: `分析和设计对话潜台词：
+
+对话内容：[用户输入]
+
+潜台词层次：
+1. 字面意思
+2. 真实意图
+3. 情感暗流
+4. 权力博弈
+5. 隐藏信息
+
+标注方式：
+表面："xxx"
+潜台词：（yyy）
+动作：[zzz]`
+            },
+            'colloquial': {
+                python: `class ColloquialProcessor:
+    def make_colloquial(self, dialogue):
+        """口语化处理"""
+        processed = dialogue
+        # 添加口语化元素
+        # 地域特色
+        # 语言习惯
+        return processed`,
+                prompt: `将对话口语化处理：
+
+原始对话：[用户输入]
+
+口语化要素：
+1. 不完整句子
+2. 口头禅
+3. 语气词
+4. 重复/口吃
+5. 地方特色
+
+保持：
+- 角色特征
+- 教育背景
+- 情绪状态`
+            },
+            'quotes': {
+                python: `class QuoteExtractor:
+    def extract_quotes(self, script):
+        """提炼金句台词"""
+        potential_quotes = []
+        # 识别有力量的句子
+        # 评分和排序
+        return potential_quotes`,
+                prompt: `提炼剧本中的金句：
+
+剧本内容：[用户输入]
+
+金句标准：
+1. 哲理性：人生感悟
+2. 情感性：打动人心
+3. 冲击性：震撼力
+4. 传播性：易记易传
+5. 画面感：意象丰富
+
+优化方向：
+- 精炼表达
+- 增强韵律
+- 深化内涵`
+            },
+            'rhythm': {
+                python: `class DialogueRhythm:
+    def design_rhythm(self, dialogue):
+        """设计对话节奏"""
+        rhythm_marks = {
+            '[pause]': '停顿',
+            '[beat]': '节拍',
+            '[rapid]': '加速',
+            '[slow]': '放缓',
+            '[overlap]': '重叠'
+        }
+        return marked_dialogue`,
+                prompt: `设计对话的节奏：
+
+对话场景：[用户输入]
+
+节奏设计：
+1. 句长变化
+2. 停顿运用
+3. 语速变换
+4. 打断技巧
+5. 沉默力量
+
+标记系统：
+[pause] - 停顿
+[beat] - 拍子
+[rapid] - 加快
+[slow] - 放慢`
+            },
+            'atmosphere': {
+                python: `class AtmosphereCreator:
+    def create_atmosphere(self, scene):
+        """营造场景氛围"""
+        atmosphere = {
+            '视觉': {'光线': '', '色彩': '', '构图': ''},
+            '听觉': {'环境音': '', '音效': '', '音乐': ''},
+            '触觉': {'温度': '', '质感': '', '湿度': ''},
+            '嗅觉': {'气味': ''},
+            '情绪': {'基调': '', '变化': ''}
+        }
+        return atmosphere`,
+                prompt: `营造场景氛围：
+
+场景设定：[用户输入]
+
+氛围营造：
+1. 感官层次
+   - 视觉主导
+   - 听觉烘托
+   - 触觉细节
+   - 嗅觉点缀
+
+2. 情绪渲染
+   - 开场情绪
+   - 情绪转变
+   - 余韵
+
+3. 象征元素
+4. 天气运用`
+            },
+            'action': {
+                python: `class ActionChoreographer:
+    def choreograph_action(self, scene_type):
+        """编排动作场面"""
+        if scene_type == 'fight':
+            return self.fight_choreography()
+        elif scene_type == 'chase':
+            return self.chase_sequence()
+        elif scene_type == 'intimate':
+            return self.intimate_moments()`,
+                prompt: `设计动作场面：
+
+场景类型：[打斗/追逐/亲密等]
+
+动作编排：
+1. 节奏设计
+   - 起承转合
+   - 快慢结合
+   - 呼吸点
+
+2. 空间利用
+3. 道具运用
+4. 情感表达
+5. 镜头建议
+
+具体到每个动作节拍。`
+            },
+            'transition': {
+                python: `class TransitionDesigner:
+    def design_transition(self, scene_a, scene_b):
+        """设计场景转换"""
+        transition_types = [
+            '硬切',
+            '叠化',
+            '匹配剪辑',
+            '声音桥接',
+            '视觉呼应',
+            '情绪延续'
+        ]
+        return best_transition`,
+                prompt: `设计场景之间的转场：
+
+场景A：[用户输入]
+场景B：[用户输入]
+
+转场技巧：
+1. 视觉转场
+2. 声音转场
+3. 动作转场
+4. 情绪转场
+5. 主题转场
+
+具体设计和效果说明。`
+            },
+            'camera': {
+                python: `class CameraLanguage:
+    def suggest_shots(self, scene):
+        """建议镜头语言"""
+        shot_list = []
+        # 分析场景需求
+        # 生成镜头列表
+        # 运动设计
+        return shot_list`,
+                prompt: `设计镜头语言：
+
+场景内容：[用户输入]
+
+镜头设计：
+1. 景别选择
+   - 远景/全景/中景/近景/特写
+2. 角度设计
+   - 平视/仰视/俯视/斜角
+3. 运动方式
+   - 固定/推拉/摇移/跟随
+4. 焦点转换
+5. 主观/客观视角
+
+输出分镜表。`
+            },
+            'style': {
+                python: `class StylePositioner:
+    def define_style(self, references):
+        """定位作品风格"""
+        style_analysis = {
+            '视觉风格': '',
+            '叙事风格': '',
+            '对话风格': '',
+            '节奏风格': '',
+            '整体基调': ''
+        }
+        return style_analysis`,
+                prompt: `定位作品整体风格：
+
+参考作品：[用户输入]
+创作意图：[用户输入]
+
+风格定位：
+1. 视觉风格
+2. 叙事风格
+3. 对话风格
+4. 音乐风格
+5. 剪辑风格
+
+统一性检查和调整建议。`
+            },
+            'tone': {
+                python: `class ToneAdjuster:
+    def adjust_tone(self, script, target_tone):
+        """调节作品基调"""
+        tone_elements = {
+            '喜剧': ['幽默', '讽刺', '夸张'],
+            '悲剧': ['宿命', '崇高', '悲悯'],
+            '惊悚': ['悬疑', '恐惧', '紧张']
+        }
+        return adjusted_script`,
+                prompt: `调节作品基调：
+
+当前基调：[用户输入]
+目标基调：[用户输入]
+
+调节要素：
+1. 语言风格
+2. 情节走向
+3. 人物命运
+4. 视觉呈现
+5. 音乐情绪
+
+平衡艺术性与商业性。`
+            },
+            'symbol': {
+                python: `class SymbolLibrary:
+    def create_symbols(self, theme):
+        """创建象征系统"""
+        symbols = {
+            '核心象征': '',
+            '重复意象': [],
+            '隐喻系统': {},
+            '视觉主题': ''
+        }
+        return symbols`,
+                prompt: `设计象征和隐喻系统：
+
+主题：[用户输入]
+
+象征设计：
+1. 核心象征物
+2. 重复意象
+3. 颜色含义
+4. 空间隐喻
+5. 时间象征
+
+如何贯穿全片，深化主题。`
+            },
+            'literary': {
+                python: `class LiteraryEnhancer:
+    def enhance_literary(self, text):
+        """增强文学性"""
+        techniques = {
+            '比喻': self.add_metaphors,
+            '意象': self.create_imagery,
+            '韵律': self.improve_rhythm,
+            '诗意': self.add_poetry
+        }
+        return enhanced_text`,
+                prompt: `提升剧本文学性：
+
+原始文本：[用户输入]
+
+文学技巧：
+1. 隐喻运用
+2. 意象营造
+3. 诗化语言
+4. 节奏美感
+5. 哲思深度
+
+保持可读性和表演性。`
+            },
+            'commercial': {
+                python: `class CommercialBalancer:
+    def balance_commercial(self, script):
+        """平衡商业元素"""
+        commercial_elements = {
+            '娱乐性': 0,
+            '话题性': 0,
+            '情感点': 0,
+            '视觉奇观': 0,
+            'IP潜力': 0
+        }
+        return optimization_suggestions`,
+                prompt: `优化商业潜力：
+
+剧本分析：[用户输入]
+
+商业要素检查：
+1. 目标观众定位
+2. 卖点提炼
+3. 营销角度
+4. 衍生潜力
+5. 国际市场
+
+在不损害艺术性前提下增强商业价值。`
+            },
+            'analysis': {
+                python: `class StructureAnalyzer:
+    def analyze_structure(self, script):
+        """分析剧本结构"""
+        analysis = {
+            '三幕比例': {},
+            '转折点位置': [],
+            '情节密度': 0,
+            '场景分布': {},
+            '完整性评分': 0
+        }
+        return analysis`,
+                prompt: `分析剧本结构完整性：
+
+剧本内容：[用户输入]
+
+检查项目：
+1. 结构比例
+2. 转折点设置
+3. 因果链条
+4. 伏笔回收
+5. 主题呼应
+
+输出问题清单和修改建议。`
+            },
+            'logic': {
+                python: `class LogicChecker:
+    def check_logic(self, script):
+        """检查逻辑漏洞"""
+        issues = []
+        # 时间线检查
+        # 人物行为逻辑
+        # 因果关系
+        # 设定一致性
+        return issues`,
+                prompt: `检查剧本逻辑问题：
+
+剧本内容：[用户输入]
+
+检查维度：
+1. 时间线连续性
+2. 空间合理性
+3. 人物行为逻辑
+4. 因果关系
+5. 设定一致性
+
+标注问题位置和严重程度。`
+            },
+            'conflict': {
+                python: `class ConflictIntensifier:
+    def intensify_conflict(self, scenes):
+        """强化戏剧冲突"""
+        for scene in scenes:
+            scene['conflict_level'] = self.measure_conflict(scene)
+            scene['improvement'] = self.suggest_intensification(scene)
+        return scenes`,
+                prompt: `强化戏剧冲突：
+
+场景列表：[用户输入]
+
+冲突类型：
+1. 人vs人
+2. 人vs自己
+3. 人vs社会
+4. 人vs自然
+5. 人vs命运
+
+强化技巧：
+- 提高赌注
+- 时间压力
+- 道德困境
+- 两难选择`
+            },
+            'emotion': {
+                python: `import matplotlib.pyplot as plt
+
+class EmotionMapper:
+    def map_emotion_curve(self, script):
+        """绘制情感曲线"""
+        emotions = self.analyze_emotions(script)
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(emotions['time'], emotions['intensity'])
+        plt.xlabel('剧本进程')
+        plt.ylabel('情感强度')
+        plt.title('观众情感曲线图')
+        plt.savefig('emotion_curve.png')
+        return 'emotion_curve.png'`,
+                prompt: `分析观众情感曲线：
+
+剧本内容：[用户输入]
+
+情感节点：
+1. 共情建立
+2. 紧张升级
+3. 感动时刻
+4. 爆笑点
+5. 泪点
+6. 释放
+
+优化建议：调整节奏，增强情感冲击。`
+            },
+            'beat': {
+                python: `class BeatAnalyzer:
+    def analyze_beats(self, script):
+        """分析剧本节拍"""
+        beats = []
+        # 识别每个节拍
+        # 计算时长
+        # 评估节奏
+        return {
+            'total_beats': len(beats),
+            'average_duration': avg,
+            'pacing_score': score
+        }`,
+                prompt: `分析剧本节拍结构：
+
+剧本内容：[用户输入]
+
+节拍分析：
+1. 场景节拍数
+2. 节拍时长
+3. 节奏变化
+4. 情绪节拍
+5. 动作节拍
+
+输出节拍表和时长预估。`
+            },
+            'polish': {
+                python: `class ScriptPolisher:
+    def polish_script(self, script):
+        """润色优化剧本"""
+        improvements = {
+            '精炼对话': self.refine_dialogue,
+            '强化描述': self.enhance_description,
+            '提升节奏': self.improve_pacing,
+            '深化主题': self.deepen_theme
+        }
+        return polished_script`,
+                prompt: `润色优化剧本：
+
+待优化内容：[用户输入]
+
+优化方向：
+1. 语言精炼
+2. 画面感增强
+3. 节奏调整
+4. 情感深化
+5. 主题升华
+
+保持原意，提升品质。`
+            },
+            'format': {
+                python: `class FormatConverter:
+    def convert_format(self, script, target_format):
+        """转换剧本格式"""
+        formats = {
+            'hollywood': self.to_hollywood_format,
+            'chinese': self.to_chinese_format,
+            'tv': self.to_tv_format,
+            'stage': self.to_stage_format
+        }
+        return formats[target_format](script)`,
+                prompt: `转换剧本格式：
+
+原始格式：[用户输入]
+目标格式：[好莱坞/国内/电视/舞台]
+
+格式要素：
+1. 场景标题
+2. 动作描述
+3. 角色名称
+4. 对话格式
+5. 转场标记
+
+输出标准格式剧本。`
+            },
+            'version': {
+                python: `class VersionManager:
+    def compare_versions(self, v1, v2):
+        """比较剧本版本"""
+        import difflib
+        
+        differ = difflib.unified_diff(
+            v1.splitlines(),
+            v2.splitlines(),
+            lineterm=''
+        )
+        return list(differ)`,
+                prompt: `管理剧本版本：
+
+版本A：[用户输入]
+版本B：[用户输入]
+
+对比内容：
+1. 结构变化
+2. 对话修改
+3. 场景增删
+4. 人物调整
+5. 主题演变
+
+生成差异报告和合并建议。`
+            },
+            'feedback': {
+                python: `class FeedbackIntegrator:
+    def integrate_feedback(self, script, feedbacks):
+        """整合反馈意见"""
+        categorized = {
+            '必须修改': [],
+            '建议修改': [],
+            '可选调整': [],
+            '冲突意见': []
+        }
+        # 分类和优先级排序
+        return categorized`,
+                prompt: `整合多方反馈：
+
+原始剧本：[用户输入]
+反馈意见：[用户输入]
+
+整合策略：
+1. 分类归纳
+2. 优先级排序
+3. 冲突协调
+4. 批量处理
+5. 保持一致性
+
+输出修改清单和实施方案。`
+            },
+            'final': {
+                python: `class FinalReviewer:
+    def final_review(self, script):
+        """最终质量审核"""
+        checklist = {
+            '故事完整性': 0,
+            '人物立体度': 0,
+            '对话自然度': 0,
+            '节奏流畅度': 0,
+            '主题深度': 0,
+            '商业潜力': 0,
+            '制作可行性': 0
+        }
+        return comprehensive_report`,
+                prompt: `剧本最终审核：
+
+完整剧本：[用户输入]
+
+审核清单：
+1. 故事完整性
+2. 人物一致性
+3. 逻辑严密性
+4. 情感真实性
+5. 主题清晰度
+6. 商业价值
+7. 艺术品质
+
+输出专业评估报告。`
+            },
+            'theme': {
+                python: `import openai
+import requests
+from textblob import TextBlob
+
+class ThemeExplorer:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def analyze_theme(self, theme_input):
+        """深度分析主题"""
+        prompt = f"""
+        对主题"{theme_input}"进行深度挖掘：
+        
+        1. 哲学层面：探讨的核心人性问题
+        2. 社会层面：反映的社会现象和矛盾
+        3. 心理层面：涉及的心理动机和冲突
+        4. 文化层面：文化背景和价值观碰撞
+        5. 时代性：当下社会的相关性
+        
+        提供3个不同角度的主题表达方式
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+        
+    def extract_subtexts(self, main_theme):
+        """提取潜在子主题"""
+        prompt = f"""
+        从主题"{main_theme}"中提取5个相关子主题：
+        每个子主题包括：
+        - 核心观点
+        - 戏剧化表现方式
+        - 可能的象征物
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+# 使用示例
+explorer = ThemeExplorer("your-api-key")
+analysis = explorer.analyze_theme("人工智能与人性")
+print(analysis)`,
+                prompt: `你是一个深谙人性和社会洞察的主题分析专家。请对提供的主题进行多维度挖掘：
+
+主题：[用户输入的主题]
+
+分析维度：
+
+1. 永恒性分析
+   - 这个主题为什么能跨越时代？
+   - 触及了哪些人类永恒的困境？
+   - 古今中外如何诠释这个主题？
+
+2. 当代性解读
+   - 在当下社会的具体表现
+   - 与热点事件的关联
+   - 年轻观众的共鸣点
+
+3. 冲突潜力
+   - 内在冲突：个人层面的挣扎
+   - 人际冲突：关系中的矛盾
+   - 社会冲突：群体间的对立
+   - 价值冲突：观念的碰撞
+
+4. 表现形式
+   - 具象化场景设计
+   - 隐喻和象征系统
+   - 视觉意象建议
+
+5. 情感地图
+   - 可能激发的情感类型
+   - 情感递进层次
+   - 共情触发点
+
+请提供具体可操作的创作建议。`
+            },
+            'character': {
+                python: `import openai
+import json
+from typing import Dict, List
+
+class CharacterGenerator:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def create_character(self, requirements: Dict):
+        """创建立体角色"""
+        prompt = f"""
+        创建一个复杂立体的角色：
+        
+        基本要求：{json.dumps(requirements, ensure_ascii=False)}
+        
+        角色设计包含：
+        1. 外在特征：年龄、外貌、穿着风格
+        2. 性格特质：优点、缺点、矛盾点
+        3. 背景故事：成长经历、创伤、转折点
+        4. 核心欲望：表层需求vs深层需求
+        5. 内在恐惧：最害怕失去什么
+        6. 行为模式：压力下的反应
+        7. 语言风格：口头禅、说话节奏
+        8. 人物弧光：起点-转变-终点
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.8
+        )
+        return response.choices[0].message.content
+        
+    def generate_relationships(self, characters: List[str]):
+        """生成角色关系网"""
+        prompt = f"""
+        为以下角色设计复杂的关系网络：
+        角色列表：{characters}
+        
+        设计要点：
+        1. 每对关系的性质和张力
+        2. 关系的动态变化
+        3. 潜在的秘密和误解
+        4. 群体动力学
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+# 使用示例
+generator = CharacterGenerator("your-api-key")
+character = generator.create_character({
+    "类型": "反英雄",
+    "年龄段": "30-40",
+    "职业": "私家侦探"
+})
+print(character)`,
+                prompt: `你是一个专业的角色塑造大师。请创建一个多维度的立体角色：
+
+角色基本设定：
+- 类型：[主角/反派/配角等]
+- 年龄：[具体年龄]
+- 职业：[职业背景]
+- 故事类型：[剧本类型]
+
+角色构建要素：
+
+1. 外在画像
+   - 第一印象
+   - 独特的外貌特征
+   - 着装风格及其含义
+   - 肢体语言特点
+
+2. 性格图谱
+   - 主导性格特质（3个）
+   - 矛盾性格点（2个）
+   - 隐藏的另一面
+   - MBTI类型分析
+
+3. 心理深度
+   - 童年关键事件
+   - 核心创伤/阴影
+   - 防御机制
+   - 补偿行为
+
+4. 欲望系统
+   - 表面欲望（别人看到的）
+   - 真实欲望（自己意识到的）
+   - 深层欲望（潜意识的）
+
+5. 恐惧地图
+   - 最大的恐惧
+   - 恐惧的根源
+   - 逃避模式
+
+6. 行为逻辑
+   - 日常习惯（3个特征性动作）
+   - 压力反应模式
+   - 决策倾向
+   - 道德底线
+
+7. 语言指纹
+   - 说话节奏和语调
+   - 常用词汇/口头禅
+   - 潜台词倾向
+   - 沉默的运用
+
+8. 关系模式
+   - 依恋类型
+   - 亲密关系处理
+   - 权力关系定位
+   - 冲突解决方式
+
+9. 成长弧线
+   - 故事开始时的状态
+   - 催化剂事件
+   - 内在转变过程
+   - 最终的蜕变
+
+10. 独特标签
+    - 让人印象深刻的细节
+    - 矛盾但真实的特质
+    - 标志性场景设计
+
+请确保角色具有：
+- 内在一致性
+- 独特辨识度
+- 情感真实性
+- 成长可能性`
+            },
+            'dialogue': {
+                python: `import openai
+import re
+
+class DialogueGenerator:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def generate_dialogue(self, scene_context, characters):
+        """生成场景对话"""
+        prompt = f"""
+        场景：{scene_context}
+        角色：{characters}
+        
+        生成一段3-5分钟的对话，要求：
+        1. 每个角色有独特的说话方式
+        2. 包含潜台词和言外之意
+        3. 有冲突升级的节奏
+        4. 自然的打断和停顿
+        5. 情感层次变化
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.85
+        )
+        return response.choices[0].message.content
+        
+    def add_subtext(self, dialogue):
+        """添加潜台词分析"""
+        prompt = f"""
+        为以下对话添加潜台词分析：
+        
+        {dialogue}
+        
+        分析每句话背后的：
+        1. 真实意图
+        2. 情感状态
+        3. 权力关系
+        4. 未说出口的话
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+        
+    def enhance_rhythm(self, dialogue):
+        """优化对话节奏"""
+        # 添加停顿标记
+        dialogue = re.sub(r'([.!?])', r'\1 [beat]', dialogue)
+        
+        # 识别情感高潮点
+        prompt = f"""
+        优化对话节奏：
+        {dialogue}
+        
+        标记：
+        1. 需要停顿的地方 [pause]
+        2. 需要加快的地方 [rapid]
+        3. 需要重音的词 *word*
+        4. 沉默的运用 [silence]
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+# 使用示例
+generator = DialogueGenerator("your-api-key")
+dialogue = generator.generate_dialogue(
+    "警察审讯室，深夜",
+    ["资深警探", "嫌疑人"]
+)
+print(dialogue)`,
+                prompt: `你是一个精通对话写作的剧本大师。请根据以下场景生成精彩对话：
+
+场景设定：
+- 地点：[具体地点]
+- 时间：[时间]
+- 氛围：[紧张/轻松/暧昧等]
+- 参与角色：[角色A、角色B等]
+
+对话要求：
+
+1. 角色声音差异化
+   - 每个角色独特的语言风格
+   - 教育背景的体现
+   - 情绪状态的表达方式
+   - 个人习惯用语
+
+2. 潜台词层次
+   - 表面对话内容
+   - 真实意图（用括号标注）
+   - 情感暗流
+   - 权力博弈
+
+3. 冲突进程
+   - 开场：试探/铺垫
+   - 发展：矛盾浮现
+   - 高潮：正面交锋
+   - 转折：意外发现
+   - 收尾：新的平衡
+
+4. 技巧运用
+   - 打断与插话
+   - 沉默的力量
+   - 重复与呼应
+   - 反问与留白
+   - 节奏变化
+
+5. 真实性要素
+   - 口语化表达
+   - 语法不完整
+   - 情绪化用词
+   - 下意识反应
+
+示例格式：
+角色A：（试探）"对话内容..." [停顿]
+角色B：（防守）"回应内容——"（被打断）
+角色A：（施压）"打断的内容。"
+
+请生成2-3页的对话，确保：
+- 每句话都推动剧情
+- 揭示角色性格
+- 制造戏剧张力
+- 留下想象空间`
+            },
+            'plot': {
+                python: `import openai
+import matplotlib.pyplot as plt
+import numpy as np
+
+class PlotWeaver:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def design_plot_structure(self, story_concept):
+        """设计情节结构"""
+        prompt = f"""
+        基于概念：{story_concept}
+        
+        设计三幕式结构：
+        
+        第一幕（25%）：
+        - 开场钩子
+        - 人物介绍
+        - 世界观建立
+        - 煽动事件
+        - 第一转折点
+        
+        第二幕上（25%）：
+        - 新世界探索
+        - B故事线
+        - 趣味与游戏
+        - 中点转折
+        
+        第二幕下（25%）：
+        - 反派逼近
+        - 一切失去
+        - 灵魂黑夜
+        - 第二转折点
+        
+        第三幕（25%）：
+        - 最终决战
+        - 高潮时刻
+        - 结局处理
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+        
+    def create_tension_curve(self, plot_points):
+        """创建张力曲线图"""
+        # 模拟张力值
+        x = np.linspace(0, 120, 100)  # 120分钟电影
+        
+        # 三幕式张力曲线
+        tension = np.zeros_like(x)
+        
+        # 第一幕：逐渐上升
+        tension[0:25] = np.linspace(3, 6, 25)
+        
+        # 第二幕上：波动上升
+        tension[25:50] = 6 + 2*np.sin(np.linspace(0, np.pi, 25))
+        
+        # 中点高潮
+        tension[50:52] = 9
+        
+        # 第二幕下：下降后急剧上升
+        tension[52:75] = np.linspace(7, 5, 23)
+        tension[75:90] = np.linspace(5, 10, 15)
+        
+        # 第三幕：最高潮后resolution
+        tension[90:95] = 10
+        tension[95:100] = np.linspace(10, 3, 5)
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(x, tension, linewidth=2)
+        plt.fill_between(x, 0, tension, alpha=0.3)
+        plt.xlabel('时间（分钟）')
+        plt.ylabel('戏剧张力')
+        plt.title('剧本张力曲线图')
+        plt.grid(True, alpha=0.3)
+        
+        # 标记关键点
+        plt.annotate('煽动事件', xy=(15, tension[15]), 
+                    xytext=(15, tension[15]+1),
+                    arrowprops=dict(arrowstyle='->'))
+        plt.annotate('中点转折', xy=(51, 9), 
+                    xytext=(51, 10),
+                    arrowprops=dict(arrowstyle='->'))
+        plt.annotate('高潮', xy=(92, 10), 
+                    xytext=(92, 11),
+                    arrowprops=dict(arrowstyle='->'))
+        
+        plt.savefig('tension_curve.png')
+        return 'tension_curve.png'
+
+# 使用示例
+weaver = PlotWeaver("your-api-key")
+plot = weaver.design_plot_structure("人工智能觉醒后的道德困境")
+print(plot)`,
+                prompt: `你是一个精通故事结构的情节设计大师。请为以下故事概念设计详细的情节结构：
+
+故事概念：[用户提供的概念]
+
+情节设计要求：
+
+1. 三幕式结构分解
+
+【第一幕】建立（25%）
+- 开场（前10页）
+  * 钩子：第一个画面/场景
+  * 基调确立
+  * 主角日常世界
+  
+- 人物介绍（5页）
+  * 主角的缺陷/需求
+  * 关键配角出场
+  * 关系建立
+  
+- 煽动事件（第12-15页）
+  * 打破平衡的事件
+  * 主角的初始反应
+  * 拒绝召唤
+  
+- 第一转折点（第25页）
+  * 不可逆转的决定
+  * 进入新世界
+  * 明确的目标
+
+【第二幕】对抗（50%）
+
+上半场：探索新世界（25%）
+- 适应阶段
+  * 学习新规则
+  * 初步胜利
+  * 虚假胜利
+  
+- B故事线
+  * 情感支线
+  * 主题呼应
+  * 人物关系深化
+  
+- 趣味与游戏
+  * 类型片精华
+  * 观众期待满足
+  * 技能展示
+  
+- 中点转折（第50-55页）
+  * 虚假胜利或失败
+  * 真相揭露
+  * 赌注提高
+
+下半场：考验加剧（25%）
+- 反派逼近
+  * 对手反击
+  * 盟友背叛
+  * 计划失败
+  
+- 逐步失去
+  * 失去支持
+  * 内在缺陷暴露
+  * 外在压力极值
+  
+- 灵魂黑夜（第75页）
+  * 最低谷
+  * 自我怀疑
+  * 似乎无解
+  
+- 第二转折点（第85页）
+  * 顿悟时刻
+  * 最后希望
+  * 决战准备
+
+【第三幕】解决（25%）
+
+- 集结力量（5页）
+  * 整合所学
+  * 团队集结
+  * 最后准备
+  
+- 最终决战（10页）
+  * 正面对决
+  * 运用所学
+  * 克服缺陷
+  
+- 高潮时刻（第95-100页）
+  * 最大冲突
+  * 主题升华
+  * 转变完成
+  
+- 新平衡（5页）
+  * 问题解决
+  * 新的世界
+  * 情感共鸣
+
+2. 支线情节编织
+- A故事：主线任务
+- B故事：情感/爱情线
+- C故事：成长/内在转变
+- 交织点设计
+
+3. 节奏控制
+- 张力波动设计
+- 呼吸点安排
+- 信息释放节奏
+- 悬念串联
+
+4. 因果链条
+- 每个事件的前因后果
+- 蝴蝶效应设计
+- 伏笔与回收
+
+请输出：
+- 详细的分场大纲
+- 关键转折点设计
+- 情节推进逻辑
+- 建议的场景数量和时长分配`
+            },
+            'scene': {
+                python: `import openai
+
+class SceneDesigner:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        openai.api_key = api_key
+        
+    def create_scene(self, scene_requirements):
+        """创建场景描述"""
+        prompt = f"""
+        场景要求：{scene_requirements}
+        
+        创建电影化的场景描述，包含：
+        
+        1. 场景标题（内/外景，地点，时间）
+        2. 环境描述：
+           - 空间布局
+           - 光线氛围
+           - 声音环境
+           - 气味温度
+        3. 人物入场：
+           - 出场方式
+           - 初始状态
+           - 视觉形象
+        4. 动作描述：
+           - 具体行为
+           - 细节动作
+           - 表情变化
+        5. 镜头建议：
+           - 机位设置
+           - 运动方式
+           - 焦点转换
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.8
+        )
+        return response.choices[0].message.content
+        
+    def design_atmosphere(self, mood, location):
+        """设计场景氛围"""
+        prompt = f"""
+        为{location}设计{mood}的氛围：
+        
+        视觉元素：
+        - 主色调
+        - 光影设计
+        - 空间感
+        - 细节装饰
+        
+        听觉元素：
+        - 环境音
+        - 音乐建议
+        - 声音层次
+        
+        感官细节：
+        - 温度感
+        - 触感
+        - 气味
+        
+        象征元素：
+        - 隐喻物件
+        - 视觉主题
+        - 重复符号
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+
+# 使用示例
+designer = SceneDesigner("your-api-key")
+scene = designer.create_scene("深夜的废弃工厂，主角独自调查真相")
+print(scene)`,
+                prompt: `你是一个视觉感极强的场景设计师。请创建一个电影化的场景：
+
+场景基本信息：
+- 类型：[内景/外景]
+- 地点：[具体地点]
+- 时间：[日/夜/黄昏等]
+- 情绪基调：[紧张/浪漫/神秘等]
+
+场景设计要素：
+
+1. 场景标题行
+   格式：内/外景 - 地点 - 时间
+
+2. 环境建立（第一印象）
+   - 镜头看到的第一个画面
+   - 空间的整体感觉
+   - 主导视觉元素
+   - 氛围营造
+
+3. 感官层次
+   【视觉】
+   - 光源：自然光/人工光/混合
+   - 色彩：主色调/对比色/情绪色
+   - 构图：前景/中景/背景层次
+   - 动态元素：风/雨/人群等
+   
+   【听觉】
+   - 环境音：持续的背景声
+   - 动作音：间歇的动作声
+   - 对话空间：混响/吸音
+   - 情绪音效：非现实音效
+   
+   【其他感官】
+   - 温度：冷/热/潮湿/干燥
+   - 气味：具体的嗅觉信息
+   - 触感：粗糙/光滑/粘腻
+
+4. 空间设计
+   - 场地布局草图描述
+   - 重要道具位置
+   - 人物动线规划
+   - 视线引导设计
+
+5. 人物与环境互动
+   - 入场方式和位置
+   - 与环境的关系（和谐/对抗）
+   - 环境对人物的影响
+   - 人物对环境的改变
+
+6. 镜头语言建议
+   - 建立镜头：场景全貌
+   - 特写重点：细节聚焦
+   - 运动设计：推拉摇移
+   - 转场预设：如何离开
+
+7. 象征性元素
+   - 重复出现的物件
+   - 隐喻性装饰
+   - 主题呼应设计
+   - 伏笔物件安排
+
+8. 动作编排
+   - 关键动作节点
+   - 动作与对话配合
+   - 肢体语言设计
+   - 互动细节
+
+9. 情绪进程
+   - 场景开始的情绪
+   - 中间的情绪转折
+   - 场景结束的情绪
+   - 余韵设计
+
+10. 制作提示
+    - 关键道具清单
+    - 特效需求标注
+    - 音效重点提示
+    - 后期处理建议
+
+输出格式示例：
+
+内景 - 废弃地铁站 - 深夜
+
+漆黑的隧道深处，一束手电光划破黑暗。水滴声在空旷的站台回响，每一声都像心跳般清晰。
+
+[详细场景描述...]
+
+请确保场景具有：
+- 强烈的视觉冲击力
+- 丰富的感官信息
+- 清晰的空间感
+- 情绪感染力`
+            },
+            'wiki': {
+                python: `import wikipedia
+import requests
+from bs4 import BeautifulSoup
+import json
+
+class WikipediaResearcher:
+    def __init__(self):
+        wikipedia.set_lang("zh")  # 设置中文
+        
+    def search_topic(self, topic, lang="zh"):
+        """搜索维基百科主题"""
+        wikipedia.set_lang(lang)
+        try:
+            # 搜索相关页面
+            search_results = wikipedia.search(topic, results=5)
+            
+            results = []
+            for result in search_results:
+                try:
+                    page = wikipedia.page(result)
+                    results.append({
+                        'title': page.title,
+                        'summary': page.summary[:500],
+                        'url': page.url,
+                        'categories': page.categories[:5],
+                        'links': page.links[:10]
+                    })
+                except wikipedia.exceptions.DisambiguationError as e:
+                    # 处理歧义页面
+                    options = e.options[:5]
+                    results.append({
+                        'title': result,
+                        'disambiguation': options
+                    })
+                except:
+                    continue
+                    
+            return results
+        except Exception as e:
+            return {'error': str(e)}
+            
+    def get_historical_events(self, year):
+        """获取历史事件"""
+        try:
+            page = wikipedia.page(f"{year}年")
+            content = page.content
+            
+            # 提取事件部分
+            events = []
+            lines = content.split('\\n')
+            for line in lines:
+                if line.strip() and not line.startswith('='):
+                    if any(month in line for month in ['1月','2月','3月','4月','5月','6月',
+                                                       '7月','8月','9月','10月','11月','12月']):
+                        events.append(line.strip())
+                        
+            return events[:20]  # 返回前20个事件
+        except:
+            return []
+    
+    def research_character_background(self, name, era):
+        """研究角色背景资料"""
+        prompt = f"""
+        研究{era}时期与{name}相似的历史人物：
+        1. 社会背景
+        2. 文化特征
+        3. 典型事件
+        4. 语言特点
+        """
+        
+        # 搜索相关历史背景
+        historical_context = self.search_topic(f"{era} 历史")
+        cultural_context = self.search_topic(f"{era} 文化")
+        
+        return {
+            'historical': historical_context,
+            'cultural': cultural_context
+        }
+
+# 使用示例
+researcher = WikipediaResearcher()
+results = researcher.search_topic("黑泽明")
+print(json.dumps(results, ensure_ascii=False, indent=2))`
